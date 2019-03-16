@@ -9,31 +9,50 @@ module.exports = function solveSudoku(matrix) {
       arr[i][j] = matrix[i][j];
     }
   }
-  recurs(arr, 0, 0);
-
-  console.log(arr);
-  return arr;
-}
-
-function recurs(arr, i, j) {
-  var position = findPosition(arr, i, j);
-  if (position.length == 0) return true;
-
+  
+  var position = findPosition(arr, 0, 0);
   i = position[0];
   j = position[1];
 
-  if (i == -1) return true;
+  var stackVariants = [];
+  var stackPositions = [];
 
-  for (var k = 1; k <= 9; k++) {
-    if (check(arr, i, j, k)) {
-      arr[i][j] = k;
+  stackPositions.push([i, j]);
 
-      if ( recurs(arr, i, j) ) return true;
-
-      arr[i][j] = 0;
+  var k;
+  while(true) {
+    for (k = 1; k < 10; k++) {
+      if (check(arr, i, j, k)) {
+        arr[i][j] = k;
+        stackVariants.push(k);
+        break;
+      }
     }
+    while (k == 10) {
+      stackPositions.pop();
+      position = stackPositions[stackPositions.length - 1];
+      i = position[0]; 
+      j = position[1];
+      arr[i][j] = 0;
+      for (k = stackVariants.pop() + 1; k < 10; k++) {
+        if (check(arr, i, j, k)) {
+          arr[i][j] = k;
+          stackVariants.push(k);
+          break;
+        }
+      }
+    }
+
+    position = findPosition(arr, i, j);
+    if (position.length == 0) break;
+
+    i = position[0];
+    j = position[1];
+
+    stackPositions.push([i, j]);
   }
-  return false;
+
+  return arr;
 }
 
 function findPosition(arr, i, j) {
@@ -78,16 +97,3 @@ function check(arr, i, j, k) {
   }
   return true;
 }
-
-
-// solveSudoku([
-//   [6, 5, 0, 7, 3, 0, 0, 8, 0],
-//   [0, 0, 0, 4, 8, 0, 5, 3, 0],
-//   [8, 4, 0, 9, 2, 5, 0, 0, 0],
-//   [0, 9, 0, 8, 0, 0, 0, 0, 0],
-//   [5, 3, 0, 2, 0, 9, 6, 0, 0],
-//   [0, 0, 6, 0, 0, 0, 8, 0, 0],
-//   [0, 0, 9, 0, 0, 0, 0, 0, 6],
-//   [0, 0, 7, 0, 0, 0, 0, 5, 0],
-//   [1, 6, 5, 3, 9, 0, 4, 7, 0]
-// ]);
